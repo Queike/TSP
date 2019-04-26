@@ -11,6 +11,49 @@ fun List<List<Int>>.getBestRouteValue(cities: List<City>): Double {
     return theShortestDistance
 }
 
+fun List<List<Int>>.getBestRoute(cities: List<City>): List<Int> {
+    var theShortestDistance = Double.POSITIVE_INFINITY
+    var bestIndividual = emptyList<Int>()
+
+    this.forEach { individual ->
+        val currentIndividualDistance = individual.getIndividualWholeDistance(cities)
+        if (currentIndividualDistance < theShortestDistance) {
+            theShortestDistance = currentIndividualDistance
+            bestIndividual = individual
+        }
+    }
+
+    return bestIndividual
+}
+
+fun List<List<Int>>.getWorstRoute(cities: List<City>): List<Int> {
+    var theLongesttDistance = Double.NEGATIVE_INFINITY
+    var worstIndividual = emptyList<Int>()
+
+    this.forEach { individual ->
+        val currentIndividualDistance = individual.getIndividualWholeDistance(cities)
+        if (currentIndividualDistance > theLongesttDistance) {
+            theLongesttDistance = currentIndividualDistance
+            worstIndividual = individual
+        }
+    }
+
+    return worstIndividual
+}
+
+fun List<List<Int>>.getWorstRouteValue(cities: List<City>): Double {
+    var theShortestDistance = Double.POSITIVE_INFINITY
+
+    this.forEach { individual ->
+        val currentIndividualDistance = individual.getIndividualWholeDistance(cities)
+        if (currentIndividualDistance > theShortestDistance) {
+            theShortestDistance = currentIndividualDistance
+        }
+    }
+
+    return theShortestDistance
+}
+
 fun List<List<Int>>.calculate(cities: List<City>): List<CalculatedIndividual> {
     val calculatedIndividuals = mutableListOf<CalculatedIndividual>()
     var increasedIndividualsValue = 0.0

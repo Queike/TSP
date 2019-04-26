@@ -1,67 +1,81 @@
 import kotlin.random.Random
 
 class IndividualsSelector {
-    companion object {
-        fun selectWithRouletteMethod(individuals: List<CalculatedIndividual>, populationSize: Int): List<List<Int>> {
-            val selectedIndividuals = mutableListOf<List<Int>>()
 
-            var individualsM = individuals
+    fun selectWithRouletteMethod(individuals: List<CalculatedIndividual>, populationSize: Int): List<List<Int>> {
+        val selectedIndividuals = mutableListOf<List<Int>>()
 
-            val individualsWholeSum = individuals.sumBy {
-                it.countedValue.toInt()
-            }
+        var mutableIndividuals = individuals
 
-            individualsM.sortedBy {
-                it.countedValue
-            }.reversed()
-
-            println("INDIVIDUALS REVERSED !")
-            individualsM.forEach {
-                println(it.countedValue)
-            }
-
-            individualsM.sortedBy {
-                it.countedValue
-            }
-
-            println("INDIVIDUALS !")
-            individualsM.forEach {
-                println(it.countedValue)
-            }
-
-            selectedIndividuals.add(individualsM.minBy { it.countedValue }!!.individual)
-
-            individualsM.forEach {  calculatedIndividual ->
-                calculatedIndividual.increasedValue = calculatedIndividual.countedValue * (10 - individualsM.indexOf(calculatedIndividual))
-            }
-
-            val increasedSum = individualsM.sumBy {
-                it.increasedValue.toInt()
-            }
-
-            individualsM.sortedBy {
-                it.increasedValue
-            }
-
-            while (selectedIndividuals.size < populationSize) {
-                selectedIndividuals.add(getRouletteResult(increasedSum, individualsM))
-            }
-
-            return selectedIndividuals
+        mutableIndividuals = mutableIndividuals.sortedBy {
+            it.countedValue
         }
 
-        private fun getRouletteResult(rouletteSum: Int, individuals: List<CalculatedIndividual>): List<Int> {
-            val randomValue = Random.nextInt(rouletteSum)
-            var winningIndividual = individuals.first()
+        selectedIndividuals.add(mutableIndividuals.first().individual)
 
-            individuals.forEach {
-                if(it.increasedValue > randomValue) {
-                    winningIndividual = it
-                    return winningIndividual.individual
-                }
-            }
+        val theWorstIndividualValue = mutableIndividuals.last().countedValue
 
-            return winningIndividual.individual
+        mutableIndividuals.forEach { individual ->
+            individual.selectorValue = theWorstIndividualValue - individual.countedValue
         }
+
+        val individualsSelectorSum = individuals.sumBy {
+            it.selectorValue.toInt()
+        }
+
+        while (selectedIndividuals.size < populationSize) {
+            selectedIndividuals.add(getRouletteResult(individualsSelectorSum.toLong(), mutableIndividuals))
+        }
+
+        return selectedIndividuals
     }
+
+    private fun getRouletteResult(rouletteSum: Long, individuals: List<CalculatedIndividual>): List<Int> {
+        if(rouletteSum == 0.toLong()) {
+            return individuals.first().individual
+        }
+        val randomValue = Random.nextLong(rouletteSum)
+        var winningIndividual = individuals.first()
+        var controlSum = 0
+
+        individuals.forEach {
+            controlSum += it.selectorValue.toInt()
+            if (controlSum >= randomValue) {
+                winningIndividual = it
+                return winningIndividual.individual
+            }
+        }
+
+        return winningIndividual.individual
+    }
+
+    fun selectWithTournamentMethod(individuals: List<CalculatedIndividual>, populationSize: Int, tournamentSize: Int): List<List<Int>> {
+        val selectedIndividuals = mutableListOf<List<Int>>()
+
+        while (selectedIndividuals.size < populationSize) {
+            selectedIndividuals.add(getTournamentResult(individuals, tournamentSize))
+        }
+
+        return selectedIndividuals
+    }
+
+    private fun getTournamentResult(individuals: List<CalculatedIndividual>, tournamentSize: Int): List<Int> {
+        val tournamentGroup = mutableListOf<CalculatedIndividual>()
+
+        while (tournamentGroup.size < tournamentSize) {
+            val randomIndividual = individuals[Random.nextInt(individuals.size)]
+            tournamentGroup.add(randomIndividual)
+        }
+
+        val sortedTournament = tournamentGroup.sortedBy {
+            it.countedValue
+        }
+
+        return sortedTournament.first().individual
+    }
+
+    private fun getIndividualsProbabilities(individuals: List<CalculatedIndividual>) {
+        val worstIndividualValue = individuals
+    }
+
 }
