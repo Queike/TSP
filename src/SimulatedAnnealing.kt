@@ -1,7 +1,7 @@
 import java.util.*
 
-//private const val DATA_SET_PATH = "data/western_sahara_points_data.txt"
-private const val DATA_SET_PATH = "data/quatar_points_data.txt"
+private const val DATA_SET_PATH = "data/western_sahara_points_data.txt"
+//private const val DATA_SET_PATH = "data/quatar_points_data.txt"
 
 class SimulatedAnnealing(
     private val startTemperature: Double,
@@ -31,24 +31,30 @@ class SimulatedAnnealing(
     private fun runAnnealingSimulation(firstPhenotype: List<Int>, cities: List<City>): List<Int> {
         var currentPhenotype = firstPhenotype
         bestPhenotype = currentPhenotype
+
         var currentTemperature = startTemperature
         var currentIteration = 0
-        addProgress(currentPhenotype)
+        //addProgress(currentPhenotype)
 
-        while (currentIteration < iterations && currentTemperature > stopTemperature) {
+        while (currentIteration < iterations) {
             currentIteration++
-            currentPhenotype = currentPhenotype.getNeighbour()
-            currentPhenotypeIndex++
-            addProgress(currentPhenotype)
-            val difference = bestPhenotype!!.getIndividualWholeDistance(cities) - currentPhenotype.getIndividualWholeDistance(cities)
+            var SiPhenotype = currentPhenotype.getNeighbour()
+            currentTemperature *= coolingRate
+            //currentPhenotypeIndex++
+            //addProgress(currentPhenotype)
+            //val difference = bestPhenotype!!.getIndividualWholeDistance(cities) - currentPhenotype.getIndividualWholeDistance(cities)
 
-            if(difference > 0) {
-                bestPhenotype = currentPhenotype
-            } else if(currentPhenotypeIndex != 0 && Math.exp(difference / currentTemperature) < randomGenerator.nextDouble()) {
-                currentPhenotype = currentPhenotype.getPrevious()
+            if(SiPhenotype.getIndividualWholeDistance(cities) <= currentPhenotype.getIndividualWholeDistance(cities)) {
+                currentPhenotype = SiPhenotype
+                if(SiPhenotype.getIndividualWholeDistance(cities) <= bestPhenotype!!.getIndividualWholeDistance(cities)) {
+                    bestPhenotype = SiPhenotype
+                }
+
+            } else if(Math.exp((currentPhenotype.getIndividualWholeDistance(cities) - SiPhenotype.getIndividualWholeDistance(cities)) / currentTemperature) > randomGenerator.nextDouble()) {
+                currentPhenotype = SiPhenotype
             }
 
-            currentTemperature *= coolingRate
+
         }
 
         return bestPhenotype!!
@@ -65,7 +71,7 @@ class SimulatedAnnealing(
     }
 
     private fun List<Int>.getNeighbour(): List<Int> {
-        return this.mutate()
+        return this.inverse()
     }
 
     private fun List<Int>.getPrevious(): List<Int> {

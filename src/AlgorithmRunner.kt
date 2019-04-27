@@ -13,10 +13,10 @@ class AlgorithmRunner {
 
         fun runSimulatedAnnealing() {
             val simulatedAnnealing = SimulatedAnnealing(
-                startTemperature = 1000000.0,
+                startTemperature = 10000000.0,
                 stopTemperature = 100.0,
                 coolingRate = 0.999,
-                iterations = 1000000000
+                iterations = 10000000
             )
             simulatedAnnealing.run()
         }
